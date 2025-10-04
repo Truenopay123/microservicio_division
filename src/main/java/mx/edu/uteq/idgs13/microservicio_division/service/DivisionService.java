@@ -37,4 +37,31 @@ public class DivisionService {
         return resultado;
     }
 
+    /* Agregar divisiones 
+    */
+    public DivisionToViewListDto addDivision(DivisionToViewListDto divisionDto) {
+        Division division = new Division();
+        division.setNombre(divisionDto.getNombre());
+        division.setActivo(true);
+        List<ProgramaEducativo> programas = new ArrayList<>();
+        if (divisionDto.getProgramasEducativos() != null) {
+            for (String progName : divisionDto.getProgramasEducativos()) {
+                ProgramaEducativo prog = new ProgramaEducativo();
+                prog.setPrograma(progName);
+                programas.add(prog);
+            }
+        }
+        division.setProgramasEducativos(programas);
+        Division savedDivision = divisionRepository.save(division);
+        DivisionToViewListDto savedDto = new DivisionToViewListDto();
+        savedDto.setDivisionId(savedDivision.getId());
+        savedDto.setNombre(savedDivision.getNombre());
+        List<String> savedProgramas = new ArrayList<>();
+        for (ProgramaEducativo prog : savedDivision.getProgramasEducativos()) {
+            savedProgramas.add(prog.getPrograma());
+        }
+        savedDto.setProgramasEducativos(savedProgramas);
+        return savedDto;
+    }
+
 }
