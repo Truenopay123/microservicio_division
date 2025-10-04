@@ -2,10 +2,12 @@ package mx.edu.uteq.idgs13.microservicio_division.service;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
 import mx.edu.uteq.idgs13.microservicio_division.entity.ProgramaEducativo;
 import mx.edu.uteq.idgs13.microservicio_division.repository.DivisionRepository;
@@ -37,8 +39,7 @@ public class DivisionService {
         return resultado;
     }
 
-    /* Agregar divisiones 
-    */
+    // Endpoint para crear una nueva división
     public DivisionToViewListDto addDivision(DivisionToViewListDto divisionDto) {
         Division division = new Division();
         division.setNombre(divisionDto.getNombre());
@@ -62,6 +63,32 @@ public class DivisionService {
         }
         savedDto.setProgramasEducativos(savedProgramas);
         return savedDto;
+    }
+
+    // Endpoint para editar un programa educativo
+    public ProgramaEducativoDto updateProgramaEducativo(Long programaId, ProgramaEducativoDto programaDto) {
+        Optional<Division> divisionOptional = divisionRepository.findAll().stream()
+                .filter(division -> division.getProgramasEducativos().stream()
+                        .anyMatch(prog -> prog.getId().equals(programaId)))
+                .findFirst();
+
+        if (divisionOptional.isPresent()) {
+            Division division = divisionOptional.get();
+            ProgramaEducativo programaToUpdate = division.getProgramasEducativos().stream()
+                    .filter(prog -> prog.getId().equals(programaId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Programa Educativo no encontrado"));
+
+            programaToUpdate.setPrograma(programaDto.getPrograma());
+            divisionRepository.save(division);
+
+            ProgramaEducativoDto updatedDto = new ProgramaEducativoDto();
+            updatedDto.setId(programaToUpdate.getId());
+            updatedDto.setPrograma(programaToUpdate.getPrograma());
+            return updatedDto;
+        } else {
+            throw new RuntimeException("División no encontrada para el Programa Educativo");
+        }
     }
 
 }

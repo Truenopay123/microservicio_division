@@ -6,16 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
 import mx.edu.uteq.idgs13.microservicio_division.repository.DivisionRepository;
 import mx.edu.uteq.idgs13.microservicio_division.service.DivisionService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RestController
 @RequestMapping("/api/divisiones")
@@ -41,8 +43,16 @@ public class DivisionController {
     @PostMapping
     public ResponseEntity<DivisionToViewListDto> createDivision(@RequestBody DivisionToViewListDto divisionDto) {
         DivisionToViewListDto savedDivision = divisionService.addDivision(divisionDto);
-        
+
         return new ResponseEntity<>(savedDivision, HttpStatus.CREATED);
+    }
+
+    // Endpoint para editar un programa educativo
+    @PutMapping("/programas/{programaId}")
+    public ResponseEntity<ProgramaEducativoDto> updateProgramaEducativo(@PathVariable Long programaId,
+            @RequestBody ProgramaEducativoDto programaDto) {
+        ProgramaEducativoDto updatedPrograma = divisionService.updateProgramaEducativo(programaId, programaDto);
+        return new ResponseEntity<>(updatedPrograma, HttpStatus.OK);
     }
 
 }
