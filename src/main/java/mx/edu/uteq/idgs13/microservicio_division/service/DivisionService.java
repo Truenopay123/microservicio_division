@@ -37,4 +37,19 @@ public class DivisionService {
         return resultado;
     }
 
+    public Division findById(Long id) throws Exception {
+        return divisionRepository.findById(id)
+            .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
+    }
+
+    public Division updateDivision(Long id, String nombre, boolean activo) throws Exception {
+        Division division = divisionRepository.findById(id)
+            .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
+        
+        division.setNombre(nombre);
+        division.setActivo(activo);
+        
+        return divisionRepository.save(division);
+    }
+
 }
