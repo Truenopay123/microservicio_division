@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionStatusDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
@@ -53,6 +54,12 @@ public class DivisionController {
             @RequestBody ProgramaEducativoDto programaDto) {
         ProgramaEducativoDto updatedPrograma = divisionService.updateProgramaEducativo(programaId, programaDto);
         return new ResponseEntity<>(updatedPrograma, HttpStatus.OK);
+    }
+
+    // Endpoint para activar o desactivar una división
+    @PutMapping("/{id}/updateStatus")
+    public Division updateDivisionStatus(@PathVariable Long id, @RequestBody DivisionStatusDto statusDto) {
+        return divisionService.updateDivisionStatus(id, statusDto.isActivo());
     }
 
 }

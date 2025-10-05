@@ -91,4 +91,20 @@ public class DivisionService {
         }
     }
 
+    // Endpoint para activar/desactivar una división
+    public Division updateDivisionStatus(Long id, boolean activo) {
+        Division division = divisionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("División no encontrada"));
+
+        division.setActivo(activo);
+
+        if (division.getProgramasEducativos() != null) {
+            for (ProgramaEducativo programa : division.getProgramasEducativos()) {
+                programa.setActivo(activo);
+            }
+        }
+
+        return divisionRepository.save(division);
+    }
+
 }
