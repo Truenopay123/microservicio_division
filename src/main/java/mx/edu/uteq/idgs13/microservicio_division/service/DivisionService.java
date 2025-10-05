@@ -37,4 +37,27 @@ public class DivisionService {
         return resultado;
     }
 
+        public Division agregarProgramaEducativo(Long divisionId, ProgramaEducativo programa) {
+            Division division = divisionRepository.findById(divisionId).orElse(null);
+            if (division == null) {
+                throw new IllegalArgumentException("División no encontrada");
+            }
+            if (programa == null || programa.getPrograma() == null || programa.getPrograma().isEmpty()) {
+                throw new IllegalArgumentException("Programa educativo inválido");
+            }
+            division.getProgramasEducativos().add(programa);
+            return divisionRepository.save(division);
+        }
+
+        public Division borrarProgramaEducativo(Long divisionId, Long programaId) {
+            Division division = divisionRepository.findById(divisionId).orElse(null);
+            if (division == null) {
+                throw new IllegalArgumentException("División no encontrada");
+            }
+            boolean removed = division.getProgramasEducativos().removeIf(p -> p.getId().equals(programaId));
+            if (!removed) {
+                throw new IllegalArgumentException("Programa educativo no encontrado en la división");
+            }
+            return divisionRepository.save(division);
+        }
 }
