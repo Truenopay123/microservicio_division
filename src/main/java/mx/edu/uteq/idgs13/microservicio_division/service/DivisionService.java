@@ -37,4 +37,11 @@ public class DivisionService {
         return resultado;
     }
 
+    // 👇 nuevo método: borrar físicamente
+    public void deleteDivision(Long id) {
+        if (!divisionRepository.existsById(id)) {
+            throw new RuntimeException("No se encontró la división con id: " + id);
+        }
+        divisionRepository.deleteById(id);
+    }
 }
