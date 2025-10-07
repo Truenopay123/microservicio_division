@@ -34,6 +34,7 @@ public class DivisionController {
     public List<Division> getAll() {
         return divisionRepository.findAll();
     }
+    
 
     @GetMapping("/{id}")
     public Division getDivisionById(@PathVariable Long id) throws Exception {

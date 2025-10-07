@@ -36,7 +36,7 @@ public class DivisionService {
         }
         return resultado;
     }
-
+  
     public Division findById(Long id) throws Exception {
         return divisionRepository.findById(id)
             .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
@@ -51,5 +51,5 @@ public class DivisionService {
         
         return divisionRepository.save(division);
     }
+  }
 
-}
