@@ -16,9 +16,6 @@ import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
 import mx.edu.uteq.idgs13.microservicio_division.repository.DivisionRepository;
 import mx.edu.uteq.idgs13.microservicio_division.service.DivisionService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/divisiones")
@@ -36,8 +33,7 @@ public class DivisionController {
 
     @GetMapping("/all")
     public List<Division> getAll() {
-        // Lógica para obtener todas las divisiones
-        return divisionRepository.findAll(); // Reemplaza con la lista real de divisiones
+        return divisionRepository.findAll();
     }
 
     // Endpoint para crear una nueva división
@@ -62,4 +58,8 @@ public class DivisionController {
         return divisionService.updateDivisionStatus(id, statusDto.isActivo());
     }
 
+    @PutMapping("/{id}")
+    public Division editDivision(@PathVariable Long id, @RequestBody DivisionEditDto dto) throws Exception {
+        return divisionService.updateDivision(id, dto.getNombre(), dto.isActivo());
+    }
 }
