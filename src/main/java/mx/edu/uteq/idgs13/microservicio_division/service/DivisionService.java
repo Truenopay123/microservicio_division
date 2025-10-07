@@ -2,10 +2,12 @@ package mx.edu.uteq.idgs13.microservicio_division.service;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
 import mx.edu.uteq.idgs13.microservicio_division.entity.ProgramaEducativo;
 import mx.edu.uteq.idgs13.microservicio_division.repository.DivisionRepository;
@@ -37,18 +39,74 @@ public class DivisionService {
         return resultado;
     }
   
+    // Endpoint para crear una nueva división
+    public DivisionToViewListDto addDivision(DivisionToViewListDto divisionDto) {
+        Division division = new Division();
+        division.setNombre(divisionDto.getNombre());
+        division.setActivo(true);
+        List<ProgramaEducativo> programas = new ArrayList<>();
+        if (divisionDto.getProgramasEducativos() != null) {
+            for (String progName : divisionDto.getProgramasEducativos()) {
+                ProgramaEducativo prog = new ProgramaEducativo();
+                prog.setPrograma(progName);
+                programas.add(prog);
+            }
+        }
+        division.setProgramasEducativos(programas);
+        Division savedDivision = divisionRepository.save(division);
+        DivisionToViewListDto savedDto = new DivisionToViewListDto();
+        savedDto.setDivisionId(savedDivision.getId());
+        savedDto.setNombre(savedDivision.getNombre());
+        List<String> savedProgramas = new ArrayList<>();
+        for (ProgramaEducativo prog : savedDivision.getProgramasEducativos()) {
+            savedProgramas.add(prog.getPrograma());
+        }
+        savedDto.setProgramasEducativos(savedProgramas);
+        return savedDto;
+  
     public Division findById(Long id) throws Exception {
         return divisionRepository.findById(id)
             .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
     }
 
-    public Division updateDivision(Long id, String nombre, boolean activo) throws Exception {
+    // Endpoint para editar un programa educativo
+    public ProgramaEducativoDto updateProgramaEducativo(Long programaId, ProgramaEducativoDto programaDto) {
+        Optional<Division> divisionOptional = divisionRepository.findAll().stream()
+                .filter(division -> division.getProgramasEducativos().stream()
+                        .anyMatch(prog -> prog.getId().equals(programaId)))
+                .findFirst();
+
+        if (divisionOptional.isPresent()) {
+            Division division = divisionOptional.get();
+            ProgramaEducativo programaToUpdate = division.getProgramasEducativos().stream()
+                    .filter(prog -> prog.getId().equals(programaId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Programa Educativo no encontrado"));
+
+            programaToUpdate.setPrograma(programaDto.getPrograma());
+            divisionRepository.save(division);
+
+            ProgramaEducativoDto updatedDto = new ProgramaEducativoDto();
+            updatedDto.setId(programaToUpdate.getId());
+            updatedDto.setPrograma(programaToUpdate.getPrograma());
+            return updatedDto;
+        } else {
+            throw new RuntimeException("División no encontrada para el Programa Educativo");
+        }
+    }
+
+    // Endpoint para activar/desactivar una división
+    public Division updateDivisionStatus(Long id, boolean activo) {
         Division division = divisionRepository.findById(id)
-            .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
-        
-        division.setNombre(nombre);
+                .orElseThrow(() -> new RuntimeException("División no encontrada"));
+
         division.setActivo(activo);
-        
+
+        if (division.getProgramasEducativos() != null) {
+            for (ProgramaEducativo programa : division.getProgramasEducativos()) {
+                programa.setActivo(activo);
+            }
+        }
         return divisionRepository.save(division);
     }
   }
