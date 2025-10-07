@@ -103,7 +103,6 @@ public class DivisionService {
                 programa.setActivo(activo);
             }
         }
-
         return divisionRepository.save(division);
     }
 
