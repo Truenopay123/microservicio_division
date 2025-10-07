@@ -52,4 +52,10 @@ public class DivisionService {
         return divisionRepository.save(division);
     }
   }
-
+public void deleteDivision(Long id) {
+        if (!divisionRepository.existsById(id)) {
+            throw new RuntimeException("No se encontró la división con id: " + id);
+        }
+        divisionRepository.deleteById(id);
+    }
+}
