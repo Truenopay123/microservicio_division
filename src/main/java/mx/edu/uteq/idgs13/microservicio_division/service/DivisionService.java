@@ -38,7 +38,7 @@ public class DivisionService {
         }
         return resultado;
     }
-
+  
     // Endpoint para crear una nueva división
     public DivisionToViewListDto addDivision(DivisionToViewListDto divisionDto) {
         Division division = new Division();
@@ -63,6 +63,10 @@ public class DivisionService {
         }
         savedDto.setProgramasEducativos(savedProgramas);
         return savedDto;
+  
+    public Division findById(Long id) throws Exception {
+        return divisionRepository.findById(id)
+            .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
     }
 
     // Endpoint para editar un programa educativo
@@ -105,5 +109,11 @@ public class DivisionService {
         }
         return divisionRepository.save(division);
     }
-
+  }
+public void deleteDivision(Long id) {
+        if (!divisionRepository.existsById(id)) {
+            throw new RuntimeException("No se encontró la división con id: " + id);
+        }
+        divisionRepository.deleteById(id);
+    }
 }
