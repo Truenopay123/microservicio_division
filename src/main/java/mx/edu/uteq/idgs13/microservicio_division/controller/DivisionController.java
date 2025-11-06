@@ -5,11 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionEditDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionStatusDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
+import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionStatusDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
@@ -26,7 +33,7 @@ public class DivisionController {
     private DivisionService divisionService;
 
     @Autowired
-    public DivisionRepository divisionRepository;
+    private DivisionRepository divisionRepository;
 
     @GetMapping
     public List<DivisionToViewListDto> getAllDivisiones() {
@@ -37,11 +44,11 @@ public class DivisionController {
     public List<Division> getAll() {
         return divisionRepository.findAll();
     }
+
     // Endpoint para crear una nueva división
     @PostMapping
     public ResponseEntity<DivisionToViewListDto> createDivision(@RequestBody DivisionToViewListDto divisionDto) {
         DivisionToViewListDto savedDivision = divisionService.addDivision(divisionDto);
-
         return new ResponseEntity<>(savedDivision, HttpStatus.CREATED);
     }
 
@@ -57,8 +64,9 @@ public class DivisionController {
     @PutMapping("/{id}/updateStatus")
     public Division updateDivisionStatus(@PathVariable Long id, @RequestBody DivisionStatusDto statusDto) {
         return divisionService.updateDivisionStatus(id, statusDto.isActivo());
+    }
   
-  @GetMapping("/{id}")
+    @GetMapping("/{id}")
     public Division getDivisionById(@PathVariable Long id) throws Exception {
         return divisionService.findById(id);
     }
@@ -68,12 +76,13 @@ public class DivisionController {
         return divisionService.updateDivision(id, dto.getNombre(), dto.isActivo());
     }
     
-  @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDivision(@PathVariable Long id) {
-    try {
-        divisionService.deleteDivision(id);
-        return ResponseEntity.ok("División eliminada físicamente con id: " + id);
-    } catch (RuntimeException e) {
-        return ResponseEntity.status(404).body(e.getMessage()); // 🔹 Devuelve 404 en lugar de 500
+        try {
+            divisionService.deleteDivision(id);
+            return ResponseEntity.ok("División eliminada físicamente con id: " + id);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
     }
 }
