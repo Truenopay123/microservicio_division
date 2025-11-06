@@ -39,7 +39,6 @@ public class DivisionService {
         return resultado;
     }
   
-    // Endpoint para crear una nueva división
     public DivisionToViewListDto addDivision(DivisionToViewListDto divisionDto) {
         Division division = new Division();
         division.setNombre(divisionDto.getNombre());
@@ -49,11 +48,14 @@ public class DivisionService {
             for (String progName : divisionDto.getProgramasEducativos()) {
                 ProgramaEducativo prog = new ProgramaEducativo();
                 prog.setPrograma(progName);
+                prog.setActivo(true);
+                prog.setDivision(division);
                 programas.add(prog);
             }
         }
         division.setProgramasEducativos(programas);
         Division savedDivision = divisionRepository.save(division);
+        
         DivisionToViewListDto savedDto = new DivisionToViewListDto();
         savedDto.setDivisionId(savedDivision.getId());
         savedDto.setNombre(savedDivision.getNombre());
@@ -63,13 +65,20 @@ public class DivisionService {
         }
         savedDto.setProgramasEducativos(savedProgramas);
         return savedDto;
+    }
   
     public Division findById(Long id) throws Exception {
         return divisionRepository.findById(id)
             .orElseThrow(() -> new Exception("División no encontrada con id: " + id));
     }
 
-    // Endpoint para editar un programa educativo
+    public Division updateDivision(Long id, String nombre, boolean activo) throws Exception {
+        Division division = findById(id);
+        division.setNombre(nombre);
+        division.setActivo(activo);
+        return divisionRepository.save(division);
+    }
+
     public ProgramaEducativoDto updateProgramaEducativo(Long programaId, ProgramaEducativoDto programaDto) {
         Optional<Division> divisionOptional = divisionRepository.findAll().stream()
                 .filter(division -> division.getProgramasEducativos().stream()
@@ -95,7 +104,6 @@ public class DivisionService {
         }
     }
 
-    // Endpoint para activar/desactivar una división
     public Division updateDivisionStatus(Long id, boolean activo) {
         Division division = divisionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("División no encontrada"));
@@ -109,8 +117,8 @@ public class DivisionService {
         }
         return divisionRepository.save(division);
     }
-  }
-public void deleteDivision(Long id) {
+
+    public void deleteDivision(Long id) {
         if (!divisionRepository.existsById(id)) {
             throw new RuntimeException("No se encontró la división con id: " + id);
         }
