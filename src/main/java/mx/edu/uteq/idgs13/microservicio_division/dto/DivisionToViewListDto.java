@@ -9,4 +9,5 @@ public class DivisionToViewListDto {
     private Long divisionId;
     private String nombre;
     private List<String> programasEducativos;
+    private List<String> profesores;
 }

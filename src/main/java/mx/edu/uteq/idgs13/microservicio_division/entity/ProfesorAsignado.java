@@ -1,28 +1,26 @@
 package mx.edu.uteq.idgs13.microservicio_division.entity;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "divisiones")
-public class Division {
-
+@Table(name = "profesores_divisiones")
+public class ProfesorAsignado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
-    private boolean activo;
-    @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProgramaEducativo> programasEducativos;
 
+    @ManyToOne
+    @JoinColumn(name = "division_id")
+    private Division division;
+
+    // ID del profesor en microservicio administrador (tabla usuarios)
+    private Long profesorId;
 }
