@@ -11,12 +11,20 @@ import mx.edu.uteq.idgs13.microservicio_division.dto.ProgramaEducativoDto;
 import mx.edu.uteq.idgs13.microservicio_division.entity.Division;
 import mx.edu.uteq.idgs13.microservicio_division.entity.ProgramaEducativo;
 import mx.edu.uteq.idgs13.microservicio_division.repository.DivisionRepository;
+import mx.edu.uteq.idgs13.microservicio_division.repository.ProfesorAsignadoRepository;
+import mx.edu.uteq.idgs13.microservicio_division.client.UsuariosClient;
+import mx.edu.uteq.idgs13.microservicio_division.entity.ProfesorAsignado;
 
 @Service
 public class DivisionService {
 
     @Autowired
     private DivisionRepository divisionRepository;
+    @Autowired
+    private ProfesorAsignadoRepository profesorAsignadoRepository;
+
+    @Autowired
+    private UsuariosClient usuariosClient;
 
     public List<DivisionToViewListDto> findAll() {
         List<Division> divisiones = divisionRepository.findAll();
@@ -34,6 +42,20 @@ public class DivisionService {
             } else {
                 dto.setProgramasEducativos(new ArrayList<>());
             }
+            // Profesores asignados a la división
+            var asignaciones = profesorAsignadoRepository.findByDivision_Id(division.getId());
+            List<Long> ids = new ArrayList<>();
+            for (var asg : asignaciones) ids.add(asg.getProfesorId());
+            List<String> nombresProfes = new ArrayList<>();
+            try {
+                List<UsuariosClient.ProfesorView> all = usuariosClient.getProfesores();
+                for (var p : all) {
+                    if (ids.contains(p.id)) nombresProfes.add(p.nombre);
+                }
+            } catch (Exception e) {
+                // si falla, devolver lista vacía
+            }
+            dto.setProfesores(nombresProfes);
             resultado.add(dto);
         }
         return resultado;
@@ -123,5 +145,22 @@ public class DivisionService {
             throw new RuntimeException("No se encontró la división con id: " + id);
         }
         divisionRepository.deleteById(id);
+    }
+
+    public boolean assignDivisionToProfesor(Long divisionId, Long profesorId) {
+        var divisionOpt = divisionRepository.findById(divisionId);
+        if (divisionOpt.isEmpty()) return false;
+        // Validar existencia remota
+        try {
+            boolean existe = usuariosClient.getProfesores().stream().anyMatch(p -> profesorId.equals(p.id));
+            if (!existe) return false;
+        } catch (Exception e) {
+            return false;
+        }
+        ProfesorAsignado asg = new ProfesorAsignado();
+        asg.setDivision(divisionOpt.get());
+        asg.setProfesorId(profesorId);
+        profesorAsignadoRepository.save(asg);
+        return true;
     }
 }

@@ -11,7 +11,7 @@ import mx.edu.uteq.idgs13.microservicio_division.entity.ProgramaEducativo;
 import mx.edu.uteq.idgs13.microservicio_division.service.ProgramaEducativoService;
 
 @RestController
-@RequestMapping("/api/programas-educativos")
+@RequestMapping("/api/programas")
 public class ProgramaEducativoController {
     @Autowired
     private ProgramaEducativoService programaEducativoService;
@@ -19,6 +19,11 @@ public class ProgramaEducativoController {
     @GetMapping
     public List<ProgramaEducativo> getAll() {
         return programaEducativoService.findAll();
+    }
+
+    @GetMapping("/division/{divisionId}")
+    public List<ProgramaEducativo> getByDivision(@PathVariable Long divisionId) {
+        return programaEducativoService.findByDivisionId(divisionId);
     }
 
     @GetMapping("/{id}")

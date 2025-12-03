@@ -2,6 +2,7 @@ package mx.edu.uteq.idgs13.microservicio_division.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,16 +21,24 @@ public class ProgramaEducativoService {
             throw new IllegalArgumentException("División no encontrada");
         }
         var division = divisionOpt.get();
-        programa = programaEducativoRepository.save(programa);
-        division.getProgramasEducativos().add(programa);
-        divisionRepository.save(division);
-        return programa;
+        // Asegurar nueva entidad y relación antes de persistir
+        programa.setId(null);
+        programa.setDivision(division);
+        return programaEducativoRepository.save(programa);
     }
     @Autowired
     private ProgramaEducativoRepository programaEducativoRepository;
 
     public List<ProgramaEducativo> findAll() {
         return programaEducativoRepository.findAll();
+    }
+
+    public List<ProgramaEducativo> findByDivisionId(Long divisionId) {
+        var divOpt = divisionRepository.findById(divisionId);
+        if (divOpt.isEmpty()) return List.of();
+        var division = divOpt.get();
+        List<ProgramaEducativo> programas = division.getProgramasEducativos();
+        return programas == null ? List.of() : programas;
     }
 
     public Optional<ProgramaEducativo> findById(Long id) {

@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import mx.edu.uteq.idgs13.microservicio_division.client.UsuariosClient;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionEditDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionStatusDto;
 import mx.edu.uteq.idgs13.microservicio_division.dto.DivisionToViewListDto;
@@ -34,10 +36,18 @@ public class DivisionController {
 
     @Autowired
     private DivisionRepository divisionRepository;
+    @Autowired
+    private UsuariosClient usuariosClient;
 
     @GetMapping
-    public List<DivisionToViewListDto> getAllDivisiones() {
-        return divisionService.findAll();
+    public ResponseEntity<?> getAllDivisiones() {
+        try {
+            List<DivisionToViewListDto> data = divisionService.findAll();
+            return ResponseEntity.ok(data);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener divisiones: " + e.getMessage());
+        }
     }
 
     @GetMapping("/all")
@@ -84,5 +94,12 @@ public class DivisionController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
+    }
+
+    // Asignar una división a un profesor
+    @PostMapping("/{id}/asignar")
+    public ResponseEntity<?> assignDivisionToProfesor(@PathVariable Long id, @RequestParam Long profesorId) {
+        boolean ok = divisionService.assignDivisionToProfesor(id, profesorId);
+        return ok ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }
